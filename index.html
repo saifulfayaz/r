@@ -6,7 +6,7 @@
   <title>Redirecting...</title>
   <style>
     body {
-      background-color: #d3d3d3; /* Changed to light grey */
+      background-color: #d3d3d3; /* Light grey */
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -36,9 +36,23 @@
       height: auto;
       border-radius: 8px;
     }
+    .mute-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+    }
+    .mute-btn:hover {
+      background-color: #555;
+    }
   </style>
   <script>
-    let countdown = 12;
+    let countdown = 5;
+
     function updateCountdown() {
       document.getElementById('countdown').innerText = countdown;
       if (countdown === 0) {
@@ -51,11 +65,20 @@
 
     window.onload = function () {
       updateCountdown();
+
       const video = document.getElementById("adVideo");
-      video.play().catch(err => {
-        console.warn("Autoplay with sound failed:", err);
+      const muteBtn = document.getElementById("muteBtn");
+
+      // Try autoplay with sound
+      video.play().catch(() => {
         video.muted = true;
         video.play();
+        muteBtn.textContent = "Unmute";
+      });
+
+      muteBtn.addEventListener("click", () => {
+        video.muted = !video.muted;
+        muteBtn.textContent = video.muted ? "Unmute" : "Mute";
       });
     }
   </script>
@@ -67,9 +90,10 @@
     <div class="ad-box">
       <p>Watch this while you wait:</p>
       <video id="adVideo" autoplay loop>
-        <source src="https://github.com/saifulfayaz/r/raw/refs/heads/main/videoplayback.mp4" type="video/mp4">
+        <source src="https://github.com/saifulfayaz/r/raw/refs/heads/main/online%20class%20me%20pass%20hua%20student%F0%9F%98%82%F0%9F%98%82%20_%20funny%20memes%20@sevengersofficial%20meme%20funnymemes%20comedymemes%20shorts.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
+      <button class="mute-btn" id="muteBtn">Mute</button>
     </div>
     <p>If you are not redirected, <a href="https://merchant.pickmywork.com/utm/MESk5csOf0ci6O1">click here</a>.</p>
   </div>
