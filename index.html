@@ -54,7 +54,7 @@
       const video = document.getElementById("adVideo");
       video.play().catch(err => {
         console.warn("Autoplay with sound failed:", err);
-        video.muted = true;
+        video.unmuted = true;
         video.play();
       });
     }
