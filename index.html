@@ -54,7 +54,7 @@
       const video = document.getElementById("adVideo");
       video.play().catch(err => {
         console.warn("Autoplay with sound failed:", err);
-        video.unmuted = true;
+        video.muted = false;
         video.play();
       });
     }
@@ -67,7 +67,7 @@
     <div class="ad-box">
       <p>Watch this while you wait:</p>
       <video id="adVideo" autoplay loop>
-        <source src="https://youtube.com/shorts/HDDCtBhuzgc?feature=shared" type="video/mp4">
+        <source src="https://github.com/saifulfayaz/r/raw/refs/heads/main/videoplayback.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
