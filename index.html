@@ -6,13 +6,13 @@
   <title>Redirecting...</title>
   <style>
     body {
-      background-color: #c4b9b9;
+      background-color: #d3d3d3; /* Changed to light grey */
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      text-align: left;
+      text-align: center;
       padding: 20px;
     }
     .container {
@@ -48,7 +48,16 @@
         setTimeout(updateCountdown, 1000);
       }
     }
-    window.onload = updateCountdown;
+
+    window.onload = function () {
+      updateCountdown();
+      const video = document.getElementById("adVideo");
+      video.play().catch(err => {
+        console.warn("Autoplay with sound failed:", err);
+        video.muted = true;
+        video.play();
+      });
+    }
   </script>
 </head>
 <body>
@@ -57,7 +66,7 @@
     <div class="loading">Please wait <span id="countdown">5</span> seconds...</div>
     <div class="ad-box">
       <p>Watch this while you wait:</p>
-      <video autoplay loop controls>
+      <video id="adVideo" autoplay loop>
         <source src="https://github.com/saifulfayaz/r/raw/refs/heads/main/online%20class%20me%20pass%20hua%20student%F0%9F%98%82%F0%9F%98%82%20_%20funny%20memes%20@sevengersofficial%20meme%20funnymemes%20comedymemes%20shorts.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
