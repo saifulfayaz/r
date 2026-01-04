@@ -1,101 +1,1212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SaifUlFayaz...</title>
-  <style>
+<meta charset="UTF-8">
+<title>Smart Image Resizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --success: #10b981;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+    --primary: #818cf8;
+    --primary-hover: #6366f1;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+    transition: var(--transition);
+}
+
+.app {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Layout */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 20px;
+    height: 100vh;
+}
+
+@media (max-width: 1100px) {
+    .layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+/* Panels */
+.panel {
+    background: var(--panel);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Image Preview */
+.image-container {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    margin-top: 0;
+}
+
+.image-container img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+}
+
+.image-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    border: 1px solid var(--border);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Form Controls */
+.control-group {
+    margin-bottom: 16px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.input-group input {
+    flex: 1;
+}
+
+.input-group select {
+    width: 100px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+input::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+/* File Input */
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.file-input-label:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Crop Controls */
+.crop-controls {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.crop-controls.active {
+    display: block;
+}
+
+.crop-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.crop-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.crop-btn:hover {
+    background: var(--primary-hover);
+}
+
+.crop-btn.secondary {
+    background: var(--muted);
+}
+
+.crop-btn.secondary:hover {
+    background: #475569;
+}
+
+.toggle-crop-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 12px;
+    display: none;
+}
+
+.toggle-crop-btn:hover {
+    background: var(--bg);
+    border-color: var(--primary);
+}
+
+.toggle-crop-btn.active {
+    display: block;
+}
+
+/* Crop Overlay */
+.crop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    cursor: crosshair;
+    z-index: 10;
+    display: none;
+}
+
+.crop-selection {
+    position: absolute;
+    border: 2px solid #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    z-index: 11;
+    display: none;
+}
+
+.crop-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #6366f1;
+    border: 2px solid white;
+    border-radius: 2px;
+    z-index: 12;
+}
+
+.crop-handle.nw {
+    top: -6px;
+    left: -6px;
+    cursor: nw-resize;
+}
+
+.crop-handle.ne {
+    top: -6px;
+    right: -6px;
+    cursor: ne-resize;
+}
+
+.crop-handle.sw {
+    bottom: -6px;
+    left: -6px;
+    cursor: sw-resize;
+}
+
+.crop-handle.se {
+    bottom: -6px;
+    right: -6px;
+    cursor: se-resize;
+}
+
+/* Button */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Download Button */
+.download-btn {
+    display: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    text-align: center;
+    margin-top: 12px;
+}
+
+.download-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
     body {
-      background-color: #d3d3d3; /* Light grey */
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      padding: 20px;
+        padding: 16px;
     }
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    .panel {
+        padding: 16px;
     }
-    .loading {
-      font-size: 24px;
-      margin-top: 20px;
+    
+    .layout {
+        height: auto;
     }
-    .ad-box {
-      margin-top: 30px;
-      padding: 20px;
-      background: #000000;
-      border-radius: 10px;
+    
+    .input-group {
+        flex-direction: column;
+        gap: 8px;
     }
-    .ad-box video {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
+    
+    .input-group select {
+        width: 100%;
     }
-    .mute-btn {
-      margin-top: 10px;
-      padding: 8px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      background-color: #333;
-      color: white;
-      cursor: pointer;
+    
+    .crop-buttons {
+        flex-direction: column;
     }
-    .mute-btn:hover {
-      background-color: #555;
-    }
-  </style>
-  <script>
-    let countdown = 13;
-
-    function updateCountdown() {
-      document.getElementById('countdown').innerText = countdown;
-      if (countdown === 0) {
-        window.location.href = "https://cglk.in/c/2s3fzeu2";
-      } else {
-        countdown--;
-        setTimeout(updateCountdown, 1000);
-      }
-    }
-
-    window.onload = function () {
-      updateCountdown();
-
-      const video = document.getElementById("adVideo");
-      const muteBtn = document.getElementById("muteBtn");
-
-      // Try autoplay with sound
-      video.play().catch(() => {
-        video.muted = true;
-        video.play();
-        muteBtn.textContent = "Unmute";
-      });
-
-      muteBtn.addEventListener("click", () => {
-        video.muted = !video.muted;
-        muteBtn.textContent = video.muted ? "Unmute" : "Mute";
-      });
-    }
-  </script>
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>150 Rupiya Dega...</h1>
-    <div class="loading">Please wait <span id="countdown">5</span> seconds...</div>
-    <div class="ad-box">
-      <p>Watch this while you wait:</p>
-      <video id="adVideo" autoplay loop>
-        <source src="https://github.com/saifulfayaz/r/raw/refs/heads/main/videoplayback.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <button class="mute-btn" id="muteBtn">Mute</button>
+<div class="app">
+    <!-- Main Content - No Header -->
+    <div class="layout">
+        <!-- LEFT: ORIGINAL -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Original Image</h3>
+            </div>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="file" accept="image/*">
+                <div class="file-input-label">
+                    <span>📁 Upload Image</span>
+                </div>
+            </div>
+            
+            <button id="toggleCrop" class="toggle-crop-btn">
+                ✂️ Enable Crop Tool
+            </button>
+            
+            <div class="crop-controls" id="cropControls">
+                <div style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">
+                    Click and drag to draw crop area. Adjust corners to refine.
+                </div>
+                <div class="crop-buttons">
+                    <button id="applyCrop" class="crop-btn">Apply Crop</button>
+                    <button id="cancelCrop" class="crop-btn secondary">Cancel</button>
+                </div>
+            </div>
+            
+            <div class="image-container" id="imageContainer">
+                <div id="origPlaceholder" class="image-placeholder">
+                    <span>Upload an image to begin</span>
+                </div>
+                <img id="orig" style="display: none;">
+                <div class="crop-overlay" id="cropOverlay"></div>
+                <div class="crop-selection" id="cropSelection">
+                    <div class="crop-handle nw"></div>
+                    <div class="crop-handle ne"></div>
+                    <div class="crop-handle sw"></div>
+                    <div class="crop-handle se"></div>
+                </div>
+            </div>
+            
+            <div id="origInfo" class="image-stats" style="display: none;">
+                <div class="stat-item">
+                    <span class="stat-label">Dimensions</span>
+                    <span class="stat-value" id="origDimensions">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Size</span>
+                    <span class="stat-value" id="origSize">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: CONTROLS -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Resize Settings</h3>
+            </div>
+            
+            <div class="control-group">
+                <label>Width</label>
+                <div class="input-group">
+                    <input type="number" id="w" placeholder="Auto">
+                    <select id="wu">
+                        <option value="px">px</option>
+                        <option value="cm" selected>cm</option>
+                        <option value="mm">mm</option>
+                        <option value="inch">inch</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Height</label>
+                <div class="input-group">
+                    <input type="number" id="h" placeholder="Auto">
+                    <select id="hu">
+                        <option value="px">px</option>
+                        <option value="cm" selected>cm</option>
+                        <option value="mm">mm</option>
+                        <option value="inch">inch</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>DPI</label>
+                <input type="number" id="dpi" value="96">
+            </div>
+            
+            <div class="control-group">
+                <label>Target Size (KB)</label>
+                <input type="number" id="kb" placeholder="Optional">
+            </div>
+            
+            <button id="run" class="btn">
+                Process Image
+            </button>
+        </div>
+
+        <!-- RIGHT: OUTPUT -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Optimized Result</h3>
+            </div>
+            
+            <div class="image-container">
+                <div id="outPlaceholder" class="image-placeholder">
+                    <span>Processed image will appear here</span>
+                </div>
+                <img id="out" style="display: none;">
+            </div>
+            
+            <div id="outInfo" class="image-stats" style="display: none;">
+                <div class="stat-item">
+                    <span class="stat-label">Dimensions</span>
+                    <span class="stat-value" id="outDimensions">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Size</span>
+                    <span class="stat-value" id="outSize">-</span>
+                </div>
+            </div>
+            
+            <a id="download" class="download-btn">
+                Download Image
+            </a>
+        </div>
     </div>
-    <p>If you are not redirected, <a href="https://cglk.in/c/2s3fzeu2">click here</a>.</p>
-  </div>
+</div>
+
+<script>
+/* DOM Elements */
+const fileInput = document.getElementById("file");
+const runBtn = document.getElementById("run");
+const orig = document.getElementById("orig");
+const out = document.getElementById("out");
+const origPlaceholder = document.getElementById("origPlaceholder");
+const outPlaceholder = document.getElementById("outPlaceholder");
+const origInfo = document.getElementById("origInfo");
+const outInfo = document.getElementById("outInfo");
+const download = document.getElementById("download");
+
+const wInput = document.getElementById("w");
+const hInput = document.getElementById("h");
+const wu = document.getElementById("wu");
+const hu = document.getElementById("hu");
+const dpiInput = document.getElementById("dpi");
+const kbInput = document.getElementById("kb");
+
+const origDimensions = document.getElementById("origDimensions");
+const origSize = document.getElementById("origSize");
+const outDimensions = document.getElementById("outDimensions");
+const outSize = document.getElementById("outSize");
+
+const toggleCropBtn = document.getElementById("toggleCrop");
+const cropControls = document.getElementById("cropControls");
+const applyCropBtn = document.getElementById("applyCrop");
+const cancelCropBtn = document.getElementById("cancelCrop");
+const cropOverlay = document.getElementById("cropOverlay");
+const cropSelection = document.getElementById("cropSelection");
+const imageContainer = document.getElementById("imageContainer");
+
+let img = new Image();
+let isCropping = false;
+let isDrawing = false;
+let startX = 0, startY = 0;
+let currentX = 0, currentY = 0;
+let cropRect = { x: 0, y: 0, width: 0, height: 0 };
+let originalImageData = null;
+
+/* Prevent image dragging */
+orig.addEventListener('dragstart', (e) => e.preventDefault());
+orig.addEventListener('mousedown', (e) => e.preventDefault());
+
+/* Load file */
+fileInput.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const url = URL.createObjectURL(file);
+    img.src = url;
+    orig.src = url;
+    
+    img.onload = () => {
+        orig.style.display = "block";
+        origPlaceholder.style.display = "none";
+        origInfo.style.display = "flex";
+        toggleCropBtn.classList.add("active");
+        
+        // Reset crop state
+        isCropping = false;
+        cropControls.classList.remove("active");
+        cropOverlay.style.display = "none";
+        cropSelection.style.display = "none";
+        toggleCropBtn.textContent = "✂️ Enable Crop Tool";
+        
+        origDimensions.textContent = `${img.width} × ${img.height}px`;
+        origSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+        
+        // Store original image data
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        originalImageData = ctx.getImageData(0, 0, img.width, img.height);
+        
+        // Clear any existing crop area
+        cropRect = { x: 0, y: 0, width: 0, height: 0 };
+    };
+};
+
+/* Crop Tool */
+toggleCropBtn.onclick = () => {
+    if (!img.src) return alert("Please upload an image first.");
+    
+    isCropping = !isCropping;
+    cropControls.classList.toggle("active");
+    
+    if (isCropping) {
+        toggleCropBtn.textContent = "❌ Disable Crop Tool";
+        cropOverlay.style.display = "block";
+        orig.style.opacity = "0.8";
+        setupCropTool();
+    } else {
+        toggleCropBtn.textContent = "✂️ Enable Crop Tool";
+        cropOverlay.style.display = "none";
+        cropSelection.style.display = "none";
+        orig.style.opacity = "1";
+        removeCropListeners();
+    }
+};
+
+function setupCropTool() {
+    // Add event listeners for crop overlay
+    cropOverlay.addEventListener('mousedown', startDrawing);
+    cropOverlay.addEventListener('touchstart', handleTouchStart);
+    
+    // Add event listeners for crop handles
+    const handles = cropSelection.querySelectorAll('.crop-handle');
+    handles.forEach(handle => {
+        handle.addEventListener('mousedown', startResizing);
+        handle.addEventListener('touchstart', handleTouchStart);
+    });
+    
+    // Add event listener for moving the crop selection
+    cropSelection.addEventListener('mousedown', startMoving);
+    cropSelection.addEventListener('touchstart', handleTouchStart);
+}
+
+function removeCropListeners() {
+    cropOverlay.removeEventListener('mousedown', startDrawing);
+    cropOverlay.removeEventListener('touchstart', handleTouchStart);
+    
+    const handles = cropSelection.querySelectorAll('.crop-handle');
+    handles.forEach(handle => {
+        handle.removeEventListener('mousedown', startResizing);
+        handle.removeEventListener('touchstart', handleTouchStart);
+    });
+    
+    cropSelection.removeEventListener('mousedown', startMoving);
+    cropSelection.removeEventListener('touchstart', handleTouchStart);
+}
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    
+    if (e.target === cropOverlay) {
+        startDrawing(mouseEvent);
+    } else if (e.target.classList.contains('crop-handle')) {
+        startResizing(mouseEvent);
+    } else if (e.target === cropSelection) {
+        startMoving(mouseEvent);
+    }
+}
+
+function startDrawing(e) {
+    if (!isCropping) return;
+    
+    e.preventDefault();
+    isDrawing = true;
+    
+    const rect = cropOverlay.getBoundingClientRect();
+    startX = e.clientX - rect.left;
+    startY = e.clientY - rect.top;
+    
+    // Clear any existing selection
+    cropSelection.style.display = "none";
+    
+    // Add move and end listeners
+    document.addEventListener('mousemove', drawCrop);
+    document.addEventListener('mouseup', stopDrawing);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', stopDrawing);
+}
+
+function drawCrop(e) {
+    if (!isDrawing) return;
+    
+    e.preventDefault();
+    const rect = cropOverlay.getBoundingClientRect();
+    currentX = e.clientX - rect.left;
+    currentY = e.clientY - rect.top;
+    
+    // Calculate rectangle
+    const x = Math.min(startX, currentX);
+    const y = Math.min(startY, currentY);
+    const width = Math.abs(currentX - startX);
+    const height = Math.abs(currentY - startY);
+    
+    // Update crop selection
+    cropSelection.style.display = "block";
+    cropSelection.style.left = x + "px";
+    cropSelection.style.top = y + "px";
+    cropSelection.style.width = width + "px";
+    cropSelection.style.height = height + "px";
+    
+    // Store crop rectangle
+    cropRect = { x, y, width, height };
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    drawCrop(mouseEvent);
+}
+
+function stopDrawing() {
+    isDrawing = false;
+    
+    // Remove move and end listeners
+    document.removeEventListener('mousemove', drawCrop);
+    document.removeEventListener('mouseup', stopDrawing);
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', stopDrawing);
+    
+    // Don't show selection if it's too small
+    if (cropRect.width < 10 || cropRect.height < 10) {
+        cropSelection.style.display = "none";
+        cropRect = { x: 0, y: 0, width: 0, height: 0 };
+    }
+}
+
+let isResizing = false;
+let resizeHandle = null;
+
+function startResizing(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isResizing = true;
+    resizeHandle = e.target.classList[1]; // nw, ne, sw, or se
+    
+    const rect = cropSelection.getBoundingClientRect();
+    startX = rect.left;
+    startY = rect.top;
+    
+    document.addEventListener('mousemove', resizeCrop);
+    document.addEventListener('mouseup', stopResizing);
+    document.addEventListener('touchmove', handleTouchMoveResize, { passive: false });
+    document.addEventListener('touchend', stopResizing);
+}
+
+function resizeCrop(e) {
+    if (!isResizing) return;
+    
+    e.preventDefault();
+    const containerRect = cropOverlay.getBoundingClientRect();
+    const mouseX = e.clientX - containerRect.left;
+    const mouseY = e.clientY - containerRect.top;
+    
+    let newX = cropRect.x;
+    let newY = cropRect.y;
+    let newWidth = cropRect.width;
+    let newHeight = cropRect.height;
+    
+    switch(resizeHandle) {
+        case 'nw':
+            newWidth = cropRect.x + cropRect.width - mouseX;
+            newHeight = cropRect.y + cropRect.height - mouseY;
+            newX = mouseX;
+            newY = mouseY;
+            break;
+        case 'ne':
+            newWidth = mouseX - cropRect.x;
+            newHeight = cropRect.y + cropRect.height - mouseY;
+            newY = mouseY;
+            break;
+        case 'sw':
+            newWidth = cropRect.x + cropRect.width - mouseX;
+            newHeight = mouseY - cropRect.y;
+            newX = mouseX;
+            break;
+        case 'se':
+            newWidth = mouseX - cropRect.x;
+            newHeight = mouseY - cropRect.y;
+            break;
+    }
+    
+    // Ensure minimum size and within bounds
+    newWidth = Math.max(10, newWidth);
+    newHeight = Math.max(10, newHeight);
+    newX = Math.max(0, Math.min(newX, containerRect.width - newWidth));
+    newY = Math.max(0, Math.min(newY, containerRect.height - newHeight));
+    
+    // Update crop selection
+    cropSelection.style.left = newX + "px";
+    cropSelection.style.top = newY + "px";
+    cropSelection.style.width = newWidth + "px";
+    cropSelection.style.height = newHeight + "px";
+    
+    // Update crop rectangle
+    cropRect = { x: newX, y: newY, width: newWidth, height: newHeight };
+}
+
+function handleTouchMoveResize(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    resizeCrop(mouseEvent);
+}
+
+function stopResizing() {
+    isResizing = false;
+    resizeHandle = null;
+    
+    document.removeEventListener('mousemove', resizeCrop);
+    document.removeEventListener('mouseup', stopResizing);
+    document.removeEventListener('touchmove', handleTouchMoveResize);
+    document.removeEventListener('touchend', stopResizing);
+}
+
+let isMoving = false;
+let moveStartX = 0, moveStartY = 0;
+
+function startMoving(e) {
+    if (e.target.classList.contains('crop-handle')) return;
+    
+    e.preventDefault();
+    isMoving = true;
+    
+    const rect = cropSelection.getBoundingClientRect();
+    moveStartX = e.clientX - rect.left;
+    moveStartY = e.clientY - rect.top;
+    
+    document.addEventListener('mousemove', moveCrop);
+    document.addEventListener('mouseup', stopMoving);
+    document.addEventListener('touchmove', handleTouchMoveMove, { passive: false });
+    document.addEventListener('touchend', stopMoving);
+}
+
+function moveCrop(e) {
+    if (!isMoving) return;
+    
+    e.preventDefault();
+    const containerRect = cropOverlay.getBoundingClientRect();
+    const mouseX = e.clientX - containerRect.left;
+    const mouseY = e.clientY - containerRect.top;
+    
+    // Calculate new position
+    let newX = mouseX - moveStartX;
+    let newY = mouseY - moveStartY;
+    
+    // Keep within bounds
+    newX = Math.max(0, Math.min(newX, containerRect.width - cropRect.width));
+    newY = Math.max(0, Math.min(newY, containerRect.height - cropRect.height));
+    
+    // Update crop selection
+    cropSelection.style.left = newX + "px";
+    cropSelection.style.top = newY + "px";
+    
+    // Update crop rectangle
+    cropRect.x = newX;
+    cropRect.y = newY;
+}
+
+function handleTouchMoveMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    moveCrop(mouseEvent);
+}
+
+function stopMoving() {
+    isMoving = false;
+    
+    document.removeEventListener('mousemove', moveCrop);
+    document.removeEventListener('mouseup', stopMoving);
+    document.removeEventListener('touchmove', handleTouchMoveMove);
+    document.removeEventListener('touchend', stopMoving);
+}
+
+applyCropBtn.onclick = () => {
+    if (!isCropping || cropRect.width === 0 || cropRect.height === 0) {
+        alert("Please draw a crop area first by clicking and dragging.");
+        return;
+    }
+    
+    // Get image display dimensions
+    const imgRect = orig.getBoundingClientRect();
+    const containerRect = cropOverlay.getBoundingClientRect();
+    
+    // Calculate scale factors
+    const scaleX = img.naturalWidth / imgRect.width;
+    const scaleY = img.naturalHeight / imgRect.height;
+    
+    // Convert crop rectangle to image coordinates
+    const actualX = Math.round(cropRect.x * scaleX);
+    const actualY = Math.round(cropRect.y * scaleY);
+    const actualWidth = Math.round(cropRect.width * scaleX);
+    const actualHeight = Math.round(cropRect.height * scaleY);
+    
+    // Create new canvas with cropped image
+    const canvas = document.createElement("canvas");
+    canvas.width = actualWidth;
+    canvas.height = actualHeight;
+    const ctx = canvas.getContext("2d");
+    
+    // Draw cropped portion
+    ctx.drawImage(img, actualX, actualY, actualWidth, actualHeight, 0, 0, actualWidth, actualHeight);
+    
+    // Update the original image with cropped version
+    const croppedUrl = canvas.toDataURL();
+    img.src = croppedUrl;
+    orig.src = croppedUrl;
+    
+    // Update stats
+    origDimensions.textContent = `${actualWidth} × ${actualHeight}px`;
+    
+    // Turn off cropping mode
+    isCropping = false;
+    cropControls.classList.remove("active");
+    cropOverlay.style.display = "none";
+    cropSelection.style.display = "none";
+    orig.style.opacity = "1";
+    toggleCropBtn.textContent = "✂️ Enable Crop Tool";
+    
+    // Update originalImageData with new cropped data
+    originalImageData = ctx.getImageData(0, 0, actualWidth, actualHeight);
+    
+    // Reset crop area
+    cropRect = { x: 0, y: 0, width: 0, height: 0 };
+    
+    // Remove crop listeners
+    removeCropListeners();
+};
+
+cancelCropBtn.onclick = () => {
+    isCropping = false;
+    cropControls.classList.remove("active");
+    cropOverlay.style.display = "none";
+    cropSelection.style.display = "none";
+    orig.style.opacity = "1";
+    toggleCropBtn.textContent = "✂️ Enable Crop Tool";
+    
+    // Reset crop area
+    cropRect = { x: 0, y: 0, width: 0, height: 0 };
+    
+    // Remove crop listeners
+    removeCropListeners();
+};
+
+/* Utility function - Updated to support mm and inch */
+function toPx(v, u, dpi) {
+    if (!v) return null;
+    
+    switch(u) {
+        case 'px':
+            return v;
+        case 'cm':
+            return Math.round(v * dpi / 2.54);
+        case 'mm':
+            return Math.round(v * dpi / 25.4);
+        case 'inch':
+            return Math.round(v * dpi);
+        default:
+            return v;
+    }
+}
+
+/* Progressive resize */
+function progressiveResize(src, tw, th) {
+    let c = document.createElement("canvas");
+    let ctx = c.getContext("2d");
+    let w = src.width, h = src.height;
+    c.width = w;
+    c.height = h;
+    ctx.drawImage(src, 0, 0);
+    
+    while (w * 0.5 > tw && h * 0.5 > th) {
+        w = Math.round(w * 0.5);
+        h = Math.round(h * 0.5);
+        let t = document.createElement("canvas");
+        t.width = w;
+        t.height = h;
+        t.getContext("2d").drawImage(c, 0, 0, w, h);
+        c = t;
+    }
+    
+    let f = document.createElement("canvas");
+    f.width = tw;
+    f.height = th;
+    f.getContext("2d").drawImage(c, 0, 0, tw, th);
+    return f;
+}
+
+/* Sharpen function */
+function sharpen(canvas) {
+    const ctx = canvas.getContext("2d");
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data, w = canvas.width;
+    const copy = new Uint8ClampedArray(d);
+    const k = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+    
+    for (let y = 1; y < canvas.height - 1; y++) {
+        for (let x = 1; x < canvas.width - 1; x++) {
+            for (let c = 0; c < 3; c++) {
+                let i = (y * w + x) * 4 + c, sum = 0, ki = 0;
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        sum += copy[((y + ky) * w + (x + kx)) * 4 + c] * k[ki++];
+                    }
+                }
+                d[i] = copy[i] * 0.8 + sum * 0.2;
+            }
+        }
+    }
+    ctx.putImageData(imgData, 0, 0);
+}
+
+/* Add micro noise */
+function addMicroNoise(canvas, amount = 0.6) {
+    const ctx = canvas.getContext("2d");
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = img.data;
+    
+    for (let i = 0; i < d.length; i += 4) {
+        const n = (Math.random() - 0.5) * amount;
+        d[i] += n;
+        d[i + 1] += n;
+        d[i + 2] += n;
+    }
+    ctx.putImageData(img, 0, 0);
+}
+
+/* Finalize and show result */
+function finalize(blob, canvas) {
+    const url = URL.createObjectURL(blob);
+    out.src = url;
+    out.style.display = "block";
+    outPlaceholder.style.display = "none";
+    outInfo.style.display = "flex";
+    
+    outDimensions.textContent = `${canvas.width} × ${canvas.height}px`;
+    outSize.textContent = `${(blob.size / 1024).toFixed(2)} KB`;
+    
+    download.href = url;
+    download.download = "optimized-image.jpg";
+    download.style.display = "block";
+}
+
+/* Run processing */
+runBtn.onclick = () => {
+    if (!img.src) return alert("Please select an image first.");
+    
+    const dpi = +dpiInput.value || 96;
+    const targetKB = +kbInput.value;
+    
+    const w = toPx(+wInput.value, wu.value, dpi);
+    const h = toPx(+hInput.value, hu.value, dpi);
+    
+    let tw = w || img.width;
+    let th = h || img.height;
+    
+    if (w && !h) th = Math.round(img.height / img.width * tw);
+    if (h && !w) tw = Math.round(img.width / img.height * th);
+    
+    let scale = 1.0;
+    
+    function attempt() {
+        let canvas = progressiveResize(
+            img,
+            Math.round(tw * scale),
+            Math.round(th * scale)
+        );
+        sharpen(canvas);
+        
+        let minQ = 0.4, maxQ = 0.95, bestBlob = null, bestDiff = Infinity;
+        
+        function search() {
+            const q = (minQ + maxQ) / 2;
+            canvas.toBlob(blob => {
+                const sizeKB = blob.size / 1024;
+                const diff = Math.abs(sizeKB - targetKB);
+                
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    bestBlob = blob;
+                }
+                
+                if (diff <= 1 || maxQ - minQ < 0.01) {
+                    finalize(bestBlob, canvas);
+                    return;
+                }
+                
+                if (sizeKB > targetKB) {
+                    maxQ = q;
+                    search();
+                } else {
+                    addMicroNoise(canvas);
+                    canvas.toBlob(b2 => {
+                        if (b2.size / 1024 > sizeKB) {
+                            minQ = q;
+                            search();
+                        } else {
+                            scale *= 1.05;
+                            attempt();
+                        }
+                    }, "image/jpeg", q);
+                }
+            }, "image/jpeg", q);
+        }
+        
+        // If targetKB is not specified, just use the current canvas
+        if (!targetKB) {
+            canvas.toBlob(blob => {
+                finalize(blob, canvas);
+            }, "image/jpeg", 0.92);
+        } else {
+            search();
+        }
+    }
+    
+    attempt();
+};
+</script>
 </body>
 </html>
